@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IPHONE_IP="${IPHONE_IP:-172.20.10.1}"
-RTSP_TRANSPORT="${RTSP_TRANSPORT:-tcp}"
+RTSP_TRANSPORT="${RTSP_TRANSPORT:-udp}"
 
 # Re-create video device
 sudo modprobe -r v4l2loopback
