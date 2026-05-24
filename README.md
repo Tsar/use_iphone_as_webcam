@@ -9,7 +9,11 @@ Install an RTSP server app on the iPhone and start streaming. Either of these wo
 - [IP Camera Lite](https://apps.apple.com/us/app/ip-camera-lite/id1013455241)
 - [IP Camera Pro](https://apps.apple.com/us/app/ip-camera-pro/id990605467)
 
-Both expose a URL of the form `rtsp://<user>:<pass>@<iphone-ip>:8554/live`. The scripts are hardcoded to `rtsp://admin:admin@192.168.1.245:8554/live` — edit them to match your iPhone's IP and credentials.
+Both expose a URL of the form `rtsp://<user>:<pass>@<iphone-ip>:8554/live`. The scripts default to `admin:admin` credentials and `IPHONE_IP=172.20.10.1` (the iPhone's address when your Linux machine joins its Personal Hotspot). Override the IP via the `IPHONE_IP` environment variable, e.g.:
+
+```bash
+IPHONE_IP=192.168.1.245 ./use_iphone_as_webcam.sh
+```
 
 ## Linux side
 
