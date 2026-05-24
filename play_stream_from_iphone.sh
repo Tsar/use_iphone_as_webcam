@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IPHONE_IP="${IPHONE_IP:-172.20.10.1}"
-RTSP_TRANSPORT="${RTSP_TRANSPORT:-udp}"
+RTSP_TRANSPORT="${RTSP_TRANSPORT:-tcp}"
 
 ffplay -rtsp_transport "${RTSP_TRANSPORT}" -fflags nobuffer -flags low_delay -framedrop -strict experimental rtsp://admin:admin@${IPHONE_IP}:8554/live
 #
