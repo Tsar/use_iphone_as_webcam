@@ -1,6 +1,7 @@
 #!/bin/bash
 
 IPHONE_IP="${IPHONE_IP:-172.20.10.1}"
+RTSP_TRANSPORT="${RTSP_TRANSPORT:-udp}"
 
 # Re-create video device
 sudo modprobe -r v4l2loopback
@@ -16,4 +17,4 @@ pactl list short modules | grep -q 'source_name=iphone_mic\b' || \
         source_properties=device.description=iPhone_Microphone
 
 # Use rtsp stream as webcam
-ffmpeg -re -rtsp_transport udp -fflags nobuffer -flags low_delay -i rtsp://admin:admin@${IPHONE_IP}:8554/live -map 0:v -r 30 -vcodec rawvideo -pix_fmt yuyv422 -f v4l2 /dev/video10 -map 0:a -f pulse iphone
+ffmpeg -re -rtsp_transport "${RTSP_TRANSPORT}" -fflags nobuffer -flags low_delay -i rtsp://admin:admin@${IPHONE_IP}:8554/live -map 0:v -r 30 -vcodec rawvideo -pix_fmt yuyv422 -f v4l2 /dev/video10 -map 0:a -f pulse iphone
