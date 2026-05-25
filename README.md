@@ -73,6 +73,22 @@ In the source properties, apply these settings:
 
 Click **Start Virtual Camera** in OBS. Any video call app (Zoom, Google Meet, Teams, etc.) will see an **OBS Virtual Camera** device — select it as your camera.
 
+### Alternative pipeline: video + audio via uridecodebin
+
+If you want to also capture the iPhone's microphone through the RTSP stream (e.g. with a DJI Mic connected to the iPhone), use this pipeline instead:
+
+```
+uridecodebin uri=rtsp://admin:admin@172.20.10.1:8554/live name=dec dec. ! videoconvert ! video. dec. ! audioconvert ! audio.
+```
+
+Also uncheck **Use pipeline time stamps (audio)** and **Sync appsink to clock (audio)**, and check **Drop audio when sink is not fast enough** in the source settings.
+
+> ⚠️ **Caveats:** `uridecodebin` internally creates its own `rtspsrc` with a default jitter buffer that cannot be disabled from the pipeline string. This causes:
+> - **Artifacts on motion** — the jitter buffer struggles to keep up when H.264 bitrate spikes due to movement
+> - **~200 ms extra latency** compared to the video-only pipeline
+>
+> Audio and video from this pipeline are in sync with each other (GStreamer handles A/V sync internally), so no manual sync offset is needed between them. But if quality matters, use the video-only pipeline above and handle audio separately.
+
 ---
 
 ## Legacy method: v4l2loopback scripts
