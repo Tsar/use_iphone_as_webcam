@@ -97,7 +97,7 @@ sudo apt install ffmpeg v4l2loopback-dkms
 
 | Script | Purpose |
 | --- | --- |
-| `play_stream_from_iphone.sh` | Play the RTSP stream in `ffplay` — useful to verify the iPhone is streaming |
+| `play_stream_from_iphone.sh` | Play the RTSP stream in `ffplay` — useful to verify the iPhone is streaming. Renders directly to screen with no virtual camera layer, so **no latency issues** |
 | `legacy_use_iphone_as_webcam.sh` | Expose the iPhone as `/dev/video10` (video only) |
 | `legacy_use_iphone_as_webcam_with_audio.sh` | Same as above, plus a virtual `iPhone_Microphone` PulseAudio source |
 
