@@ -1,6 +1,6 @@
 # Use iPhone as Webcam on Linux
 
-Small set of scripts that turn an iPhone into a Linux webcam (and optionally a microphone) via an RTSP stream from the phone.
+Turn an iPhone into a Linux webcam via an RTSP stream from the phone.
 
 ## iPhone side
 
@@ -9,36 +9,121 @@ Install an RTSP server app on the iPhone and start streaming. Either of these wo
 - [IP Camera Lite](https://apps.apple.com/us/app/ip-camera-lite/id1013455241)
 - [IP Camera Pro](https://apps.apple.com/us/app/ip-camera-pro/id990605467)
 
-Both expose a URL of the form `rtsp://<user>:<pass>@<iphone-ip>:8554/live`. The scripts default to `admin:admin` credentials and `IPHONE_IP=172.20.10.1` (the iPhone's address when your Linux machine joins its Personal Hotspot). Override the IP via the `IPHONE_IP` environment variable, e.g.:
+Both expose a URL of the form `rtsp://<user>:<pass>@<iphone-ip>:8554/live`. The instructions below default to `admin:admin` credentials and `172.20.10.1` as the iPhone IP (its address when your Linux machine joins its Personal Hotspot).
+
+**Recommended resolution:** 1280×720 — sufficient for most use cases and easier on the network and CPU than higher resolutions.
+
+---
+
+## Recommended method: OBS + obs-gstreamer (low latency)
+
+This method feeds the RTSP stream directly into OBS Studio via a GStreamer pipeline, with near-zero latency (~2–3 frames). No v4l2loopback involved.
+
+For video calls (Zoom, Meet, etc.) you can use OBS's built-in **Virtual Camera** to expose the result as a regular webcam device.
+
+### 1. Install OBS Studio
+
+Follow the [official OBS Linux installation guide](https://obsproject.com/wiki/install-instructions/linux).
+
+### 2. Install GStreamer packages
 
 ```bash
-IPHONE_IP=192.168.1.245 ./use_iphone_as_webcam.sh
+sudo apt install gstreamer1.0-libav gstreamer1.0-rtsp
 ```
 
-## Linux side
+### 3. Install obs-gstreamer plugin
 
-Requirements:
+Download the prebuilt binary and place it in OBS's user plugin directory:
+
+```bash
+curl -L https://github.com/fzwoch/obs-gstreamer/releases/download/v0.4.1/obs-gstreamer.zip -o /tmp/obs-gstreamer.zip
+mkdir -p ~/.config/obs-studio/plugins/obs-gstreamer/bin/64bit
+unzip -p /tmp/obs-gstreamer.zip linux/obs-gstreamer.so \
+    > ~/.config/obs-studio/plugins/obs-gstreamer/bin/64bit/obs-gstreamer.so
+```
+
+No `sudo` needed — OBS scans that directory automatically on startup.
+
+### 4. Add a GStreamer source in OBS
+
+Restart OBS, then in your scene add a new source: **GStreamer Source**.
+
+Set the **Pipeline** to:
+
+```
+rtspsrc location=rtsp://admin:admin@172.20.10.1:8554/live latency=0 protocols=4 ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! video.
+```
+
+(`protocols=4` = TCP, which avoids packet loss artifacts)
+
+### 5. Configure the source settings
+
+In the source properties, apply these settings:
+
+| Setting | Value |
+| --- | --- |
+| Use pipeline time stamps (video) | ☐ off |
+| Sync appsink to clock (video) | ☐ off |
+| Drop video when sink is not fast enough | ☑ on |
+| Disable buffering in OBS | ☑ on |
+
+> **Why:** with timestamps and clock sync enabled, GStreamer buffers ~2 seconds of frames at startup while aligning the iPhone's stream clock to the local system clock — causing permanent latency. Disabling them makes frames pass through immediately.
+
+### 6. For video calls: use OBS Virtual Camera
+
+Click **Start Virtual Camera** in OBS. Any video call app (Zoom, Google Meet, Teams, etc.) will see an **OBS Virtual Camera** device — select it as your camera.
+
+---
+
+## Legacy method: v4l2loopback scripts
+
+> ⚠️ **These scripts have significant latency (~500 ms) in OBS and video call apps.** The delay comes from the v4l2loopback kernel buffer and how apps read from virtual camera devices. If you use these, you'll need to compensate with a **~550 ms sync offset on your microphone** in OBS (Audio Mixer → ⚙ → Advanced Audio Properties → Sync Offset).
+>
+> The recommended OBS + obs-gstreamer method above does not have this problem.
+
+These scripts are still useful if you need the virtual camera device outside of OBS (e.g., in a browser-based video call app without OBS running).
+
+### Requirements
 
 - `ffmpeg` (and `ffplay` for the preview script)
-- `v4l2loopback-dkms` (for the virtual `/dev/video*` device)
-- PulseAudio or PipeWire (only the audio-enabled variant needs it)
+- `v4l2loopback-dkms`
+- PulseAudio or PipeWire (audio variant only)
 
-## Scripts
+```bash
+sudo apt install ffmpeg v4l2loopback-dkms
+```
+
+### Scripts
 
 | Script | Purpose |
 | --- | --- |
-| `play_stream_from_iphone.sh` | Play the RTSP feed in `ffplay` — useful to verify the iPhone is streaming |
-| `use_iphone_as_webcam.sh` | Expose the iPhone as `/dev/video10` (video only) |
-| `use_iphone_as_webcam_with_audio.sh` | Same as above, plus a virtual `iPhone_Microphone` PulseAudio source |
+| `play_stream_from_iphone.sh` | Play the RTSP stream in `ffplay` — useful to verify the iPhone is streaming |
+| `legacy_use_iphone_as_webcam.sh` | Expose the iPhone as `/dev/video10` (video only) |
+| `legacy_use_iphone_as_webcam_with_audio.sh` | Same as above, plus a virtual `iPhone_Microphone` PulseAudio source |
 
-## Usage
+### Usage
 
 ```bash
-./use_iphone_as_webcam.sh
+./legacy_use_iphone_as_webcam.sh
 # or, for video + audio:
-./use_iphone_as_webcam_with_audio.sh
+./legacy_use_iphone_as_webcam_with_audio.sh
 ```
 
-In Chrome, Element, Zoom, etc., pick **iPhone Camera** as the camera. For the audio variant, also pick **iPhone_Microphone** as the microphone (you may need to restart the app once after first run so it sees the new source).
+In Chrome, Zoom, etc., pick **iPhone Camera** as the camera. For the audio variant, also pick **iPhone_Microphone** as the microphone (you may need to restart the app once after first run so it sees the new source).
 
-Stop with `Ctrl-C`. The video loopback device and (for the audio variant) PulseAudio modules stay loaded until reboot — re-running the script is safe and idempotent.
+Stop with `Ctrl-C`. The video loopback device and (for the audio variant) PulseAudio modules stay loaded until reboot — re-running the script is safe.
+
+### Environment variables
+
+Both the legacy scripts and `play_stream_from_iphone.sh` respect these variables:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `IPHONE_IP` | `172.20.10.1` | iPhone's IP address |
+| `RTSP_TRANSPORT` | `tcp` (legacy scripts) / `tcp` (play script) | `tcp` or `udp`. TCP is reliable but adds latency; UDP is lower latency but may produce decode errors on a lossy hotspot connection |
+
+Example:
+
+```bash
+IPHONE_IP=192.168.1.245 ./legacy_use_iphone_as_webcam.sh
+```
