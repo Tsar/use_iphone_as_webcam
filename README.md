@@ -69,7 +69,31 @@ In the source properties, apply these settings:
 
 > **Why:** with timestamps and clock sync enabled, GStreamer buffers ~2 seconds of frames at startup while aligning the iPhone's stream clock to the local system clock — causing permanent latency. Disabling them makes frames pass through immediately.
 
-### 6. For video calls: use OBS Virtual Camera
+### 6. OBS settings
+
+**Settings → Video:**
+| Setting | Value |
+| --- | --- |
+| Base (Canvas) Resolution | 1920×1080 |
+| Output (Scaled) Resolution | 1920×1080 |
+| FPS | 30 |
+
+**Settings → Output:**
+| Setting | Value |
+| --- | --- |
+| Video Bitrate | 6000 kbps |
+| Audio Bitrate | 160 kbps |
+| Video Encoder | Software (x264) |
+| Encoder Preset | fast |
+| Audio Encoder | AAC |
+
+**Settings → Audio:**
+| Setting | Value |
+| --- | --- |
+| Sample Rate | 48 kHz |
+| Channels | Stereo |
+
+### 7. For video calls: use OBS Virtual Camera
 
 Click **Start Virtual Camera** in OBS. Any video call app (Zoom, Google Meet, Teams, etc.) will see an **OBS Virtual Camera** device — select it as your camera.
 
