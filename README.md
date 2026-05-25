@@ -78,7 +78,15 @@ In the source properties, apply these settings:
 | Output (Scaled) Resolution | 1920×1080 |
 | FPS | 30 |
 
-**Settings → Output:**
+**Settings → Audio:**
+| Setting | Value |
+| --- | --- |
+| Sample Rate | 48 kHz |
+| Channels | Stereo |
+
+**Settings → Output** — depends on your hardware:
+
+*Modern CPU (e.g. AMD Ryzen 7 7735U):*
 | Setting | Value |
 | --- | --- |
 | Video Bitrate | 6000 kbps |
@@ -87,11 +95,16 @@ In the source properties, apply these settings:
 | Encoder Preset | fast |
 | Audio Encoder | AAC |
 
-**Settings → Audio:**
+*Older CPU with NVIDIA GPU (e.g. i7-2600K + RTX 2070):*
 | Setting | Value |
 | --- | --- |
-| Sample Rate | 48 kHz |
-| Channels | Stereo |
+| Video Bitrate | 6000 kbps |
+| Audio Bitrate | 160 kbps |
+| Video Encoder | Hardware (NVENC, H.264) |
+| Encoder Preset | P7: Slowest (Best Quality) |
+| Audio Encoder | AAC |
+
+Use NVENC when available — it offloads encoding entirely to the GPU (~15% GPU video engine load for H.264), leaving the CPU free. HEVC NVENC is also an option (~30% GPU video engine load) and gives better quality at the same bitrate, but YouTube re-encodes everything anyway so H.264 is the safer choice for streaming. HEVC is more useful for local recordings (smaller file sizes at the same quality).
 
 ### 7. For video calls: use OBS Virtual Camera
 
