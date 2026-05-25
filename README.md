@@ -11,7 +11,7 @@ Install an RTSP server app on the iPhone and start streaming. Either of these wo
 
 Both expose a URL of the form `rtsp://<user>:<pass>@<iphone-ip>:8554/live`. The instructions below default to `admin:admin` credentials and `172.20.10.1` as the iPhone IP (its address when your Linux machine joins its Personal Hotspot).
 
-**Recommended resolution:** 1280×720 — sufficient for most use cases and easier on the network and CPU than higher resolutions.
+**Recommended resolution:** 1920×1080 for full HD streaming, or 1280×720 if your CPU or network connection is limited.
 
 ---
 
