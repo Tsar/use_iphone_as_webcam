@@ -25,6 +25,17 @@ For video calls (Zoom, Meet, etc.) you can use OBS's built-in **Virtual Camera**
 
 Follow the [official OBS Linux installation guide](https://obsproject.com/wiki/install-instructions/linux).
 
+> **Note for Wayland users:** OBS browser-based docks (YouTube Live Control Panel, Chat) don't work under Wayland due to a CEF incompatibility. To fix this, launch OBS with the X11 backend:
+> ```bash
+> GDK_BACKEND=x11 QT_QPA_PLATFORM=xcb obs
+> ```
+> To make this permanent via the app launcher, copy the desktop file to your local applications directory and patch it:
+> ```bash
+> cat /usr/share/applications/com.obsproject.Studio.desktop \
+>     | sed 's|^Exec=obs$|Exec=env GDK_BACKEND=x11 QT_QPA_PLATFORM=xcb obs|' \
+>     > ~/.local/share/applications/com.obsproject.Studio.desktop
+> ```
+
 ### 2. Install GStreamer packages
 
 ```bash
