@@ -100,7 +100,7 @@ In the source properties, apply these settings:
 *Modern CPU (e.g. AMD Ryzen 7 7735U):*
 | Setting | Value |
 | --- | --- |
-| Video Bitrate | 6000 kbps |
+| Video Bitrate | 10000 kbps |
 | Audio Bitrate | 160 kbps |
 | Video Encoder | Software (x264) |
 | Encoder Preset | fast |
@@ -109,7 +109,7 @@ In the source properties, apply these settings:
 *Older CPU with NVIDIA GPU (e.g. i7-2600K + RTX 2070):*
 | Setting | Value |
 | --- | --- |
-| Video Bitrate | 6000 kbps |
+| Video Bitrate | 10000 kbps |
 | Audio Bitrate | 160 kbps |
 | Video Encoder | Hardware (NVENC, H.264) |
 | Encoder Preset | P7: Slowest (Best Quality) |
